@@ -49,7 +49,7 @@
 /* ---------- base: behaves like an app, not a page ---------- */
 *,*::before,*::after{box-sizing:border-box}
 html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none;-webkit-text-size-adjust:100%}
-body{position:fixed;inset:0;background:var(--bg);color:var(--text);
+body{position:fixed;top:0;left:0;right:0;height:var(--app-h,100%);background:var(--bg);color:var(--text);
   font:15px/1.45 var(--ui);letter-spacing:-.006em;-webkit-font-smoothing:antialiased;
   -webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
   touch-action:manipulation}
@@ -314,7 +314,7 @@ input[type=range]{width:100%;accent-color:var(--brass);height:28px}
 .version{text-align:center;font-size:12px;color:var(--dim);margin:6px 0 0}
 
 /* ---------- tab bar with a centre add button ---------- */
-.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;border-top:1px solid var(--line);
+.tabs{position:absolute;left:0;right:0;bottom:0;z-index:10;border-top:1px solid var(--line);
   background:var(--surface);background:color-mix(in srgb,var(--surface) 90%,transparent);
   -webkit-backdrop-filter:saturate(1.4) blur(18px);backdrop-filter:saturate(1.4) blur(18px);
   padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}
@@ -388,7 +388,7 @@ dialog[open]{animation:sheet .26s cubic-bezier(.2,.85,.25,1)}
 .save:disabled{opacity:.35}
 
 /* toast */
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:30;
+.toast{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:30;
   background:var(--text);color:var(--bg);border-radius:14px;padding:12px 16px;display:flex;align-items:center;gap:16px;
   font-size:14px;font-weight:500;box-shadow:0 8px 26px rgba(0,0,0,.28);max-width:calc(100vw - 32px)}
 .toast span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -410,6 +410,36 @@ dialog[open]{animation:sheet .26s cubic-bezier(.2,.85,.25,1)}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 .bars{justify-content:center}
 .bcol{flex:1 1 0;max-width:40px}
+
+/* ================= v7 ================= */
+.ptitle{flex:1;min-width:0}
+.ptitle .title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.phead{justify-content:flex-start}
+.phead .gear svg{width:19px;height:19px;stroke-width:1.8}
+.phead .avatar,.phead .mnav{margin-left:auto}
+.filter.wide{margin-bottom:var(--gap)}
+
+/* wide screens: two columns of widgets, sheets become centred dialogs */
+@media (min-width: 900px){
+  .page{max-width:1100px;padding-left:32px;padding-right:32px}
+  .phead{margin-left:-32px;margin-right:-32px;padding-left:32px;padding-right:32px}
+  .title{font-size:30px}
+  .stack{columns:2;column-gap:16px}
+  .stack > *{break-inside:avoid;-webkit-column-break-inside:avoid}
+  .stack > .wide{column-span:all;-webkit-column-span:all}
+  .w{margin-bottom:16px}
+  .wgrid,.stats{margin-bottom:16px;gap:16px}
+  .tabs .inner{max-width:560px}
+  dialog{margin:auto;border-radius:24px;max-width:460px;max-height:88vh}
+  dialog[open]{animation:pop .18s ease}
+  .grab{display:none}
+  @keyframes pop{from{transform:scale(.97);opacity:.4}to{transform:none;opacity:1}}
+}
+@media (min-width: 1300px){
+  .page{max-width:1280px}
+  .stack{columns:3}
+}
+@media (min-width: 900px){ .chart svg{max-height:280px} }
 
 </style>
 </head>
@@ -453,9 +483,11 @@ dialog[open]{animation:sheet .26s cubic-bezier(.2,.85,.25,1)}
   <!-- ---------- HOME ---------- -->
   <section class="page" id="page-today">
     <header class="phead">
-      <div><h1 class="title" id="hello">Hello</h1><div class="subtitle" id="today-date">—</div></div>
+      <button class="nav gear" data-go="settings" aria-label="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 -.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+      <div class="ptitle"><h1 class="title" id="hello">Hello</h1><div class="subtitle" id="today-date">—</div></div>
       <button class="avatar" id="account-pill" aria-label="Account"><span id="me-name">·</span></button>
     </header>
+    <div class="stack">
 
     <div class="w hero" id="hero">
       <div class="wh"><span class="wt" id="hero-lab">Left to spend today</span><span class="wm" id="hero-meta"></span></div>
@@ -505,17 +537,20 @@ dialog[open]{animation:sheet .26s cubic-bezier(.2,.85,.25,1)}
         <span style="display:flex;gap:8px;align-items:center"><span class="wm" id="ledger-meta"></span><button class="back" id="back-today" hidden>Today</button></span></div>
       <div class="rows" id="ledger"></div>
     </div>
+      </div>
   </section>
 
   <!-- ---------- BUDGET ---------- -->
   <section class="page" id="page-budget" hidden>
     <header class="phead">
-      <div><h1 class="title" id="b-month">—</h1><div class="subtitle">Budget</div></div>
+      <button class="nav gear" data-go="settings" aria-label="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 -.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+      <div class="ptitle"><h1 class="title" id="b-month">—</h1><div class="subtitle">Budget</div></div>
       <div class="mnav">
         <button class="nav" id="b-prev" aria-label="Previous month"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
         <button class="nav" id="b-next" aria-label="Next month"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
       </div>
     </header>
+    <div class="stack">
 
     <div class="w hero" id="b-hero">
       <div class="wh"><span class="wt" id="bh-lab">Saved this month</span><span class="wm" id="bh-rate"></span></div>
@@ -562,19 +597,21 @@ dialog[open]{animation:sheet .26s cubic-bezier(.2,.85,.25,1)}
       <div class="wh"><span class="wt"><svg viewBox="0 0 24 24"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>Kept each month</span><span class="wm" id="yr-meta"></span></div>
       <div id="yr"></div>
     </div>
+      </div>
   </section>
 
   <!-- ---------- INSIGHTS: SPENDING ---------- -->
   <section class="page" id="page-month" hidden>
     <header class="phead">
-      <div><h1 class="title" id="m-title">—</h1><div class="subtitle">Spending</div></div>
+      <button class="nav gear" data-go="settings" aria-label="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 -.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+      <div class="ptitle"><h1 class="title" id="m-title">—</h1><div class="subtitle">Spending</div></div>
       <div class="mnav">
         <button class="nav" id="m-prev" aria-label="Previous month"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
         <button class="nav" id="m-next" aria-label="Next month"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
       </div>
     </header>
-    <div class="subnav"><button data-go="month" aria-pressed="true">Spending</button><button data-go="insights" aria-pressed="false">Trends</button></div>
-    <div class="filter" id="m-filter"></div>
+    <div class="stack">
+    <div class="filter wide" id="m-filter"></div>
 
     <div class="w">
       <div class="chart" id="chart"></div>
@@ -604,13 +641,15 @@ dialog[open]{animation:sheet .26s cubic-bezier(.2,.85,.25,1)}
       <div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg><input id="q" placeholder="Search" aria-label="Search this month"></div>
       <div class="rows" id="all"></div>
     </div>
+      </div>
   </section>
 
   <!-- ---------- INSIGHTS: TRENDS ---------- -->
   <section class="page" id="page-insights" hidden>
-    <header class="phead"><div><h1 class="title">Trends</h1><div class="subtitle" id="i-window">last 30 days</div></div></header>
-    <div class="subnav"><button data-go="month" aria-pressed="false">Spending</button><button data-go="insights" aria-pressed="true">Trends</button></div>
-    <div class="filter" id="i-filter"></div>
+    <header class="phead">
+      <button class="nav gear" data-go="settings" aria-label="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 -.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button><div class="ptitle"><h1 class="title">Trends</h1><div class="subtitle" id="i-window">last 30 days</div></div></header>
+    <div class="stack">
+    <div class="filter wide" id="i-filter"></div>
 
     <div class="w">
       <div class="wh"><span class="wt">By category</span></div>
@@ -630,11 +669,13 @@ dialog[open]{animation:sheet .26s cubic-bezier(.2,.85,.25,1)}
       <div class="wh"><span class="wt">Recent one-offs</span><span class="wm">outside the cap</span></div>
       <div class="rows" id="extras"></div>
     </div>
+      </div>
   </section>
 
   <!-- ---------- SETTINGS ---------- -->
   <section class="page" id="page-settings" hidden>
-    <header class="phead"><div><h1 class="title">Settings</h1><div class="subtitle" id="acct-line">—</div></div></header>
+    <header class="phead"><button class="nav" id="settings-back" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button><div class="ptitle"><h1 class="title">Settings</h1><div class="subtitle" id="acct-line">—</div></div></header>
+    <div class="stack">
 
     <div class="w set">
       <h3>Income &amp; bills</h3>
@@ -690,6 +731,7 @@ dialog[open]{animation:sheet .26s cubic-bezier(.2,.85,.25,1)}
       <div class="btnrow"><button class="btn" id="signout">Sign out</button><button class="btn danger" id="wipe">Delete everything</button></div>
     </div>
     <p class="version" id="version"></p>
+      </div>
   </section>
 </div>
 
@@ -703,9 +745,9 @@ dialog[open]{animation:sheet .26s cubic-bezier(.2,.85,.25,1)}
     <button class="tabadd" id="fab" aria-label="Add">
       <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
     <button class="tab" data-page="month" aria-selected="false">
-      <svg viewBox="0 0 24 24"><path d="M4 19h16"/><path d="M5 15l4-4 3 3 6-7"/></svg>Insights</button>
-    <button class="tab" data-page="settings" aria-selected="false">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Settings</button>
+      <svg viewBox="0 0 24 24"><path d="M4 19h16"/><path d="M5 15l4-4 3 3 6-7"/></svg>Spending</button>
+    <button class="tab" data-page="insights" aria-selected="false">
+      <svg viewBox="0 0 24 24"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>Trends</button>
   </div>
 </nav>
 
@@ -1126,9 +1168,24 @@ var ui = { day:null, month:null, editing:null, undo:null, timer:null, q:"",
            me:null, logFor:null, mFilter:"all", iFilter:"all", capEditing:null };
 
 var $ = function (id) { return document.getElementById(id); };
+
+/* Size the app to the actual screen. Installed on an iPhone, the browser can
+   report a height short of the screen, leaving a gap under the tab bar. */
+function fitHeight() {
+  var h = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+  if (window.navigator.standalone) {
+    var portrait = window.matchMedia && window.matchMedia("(orientation: portrait)").matches;
+    var sh = portrait ? Math.max(screen.width, screen.height) : Math.min(screen.width, screen.height);
+    if (sh > h) h = sh;
+  }
+  document.documentElement.style.setProperty("--app-h", h + "px");
+}
+fitHeight();
+window.addEventListener("resize", fitHeight);
+window.addEventListener("orientationchange", function () { setTimeout(fitHeight, 250); });
 /* bind quietly skips anything missing, so one stray id can never take the whole app down */
 function bind(id, ev, fn) { var el = $(id); if (el) el.addEventListener(ev, fn); }
-var VERSION = "6";
+var VERSION = "7";
 
 /* ---------- settings held in the store ---------- */
 function caps() { return Store.getPref("caps", {}) || {}; }
@@ -1888,9 +1945,10 @@ function saveSource() {
 var PAGES = ["today", "month", "budget", "insights", "settings"];
 function show(page) {
   if (PAGES.indexOf(page) < 0) return;
+  if (page === "settings" && ui.page && ui.page !== "settings") ui.prevPage = ui.page;
   ui.page = page;
   PAGES.forEach(function (p) { $("page-" + p).hidden = (p !== page); });
-  var tab = page === "insights" ? "month" : page;
+  var tab = page;
   Array.prototype.forEach.call(document.querySelectorAll(".tab"), function (t) {
     t.setAttribute("aria-selected", String(t.getAttribute("data-page") === tab));
   });
@@ -1914,6 +1972,7 @@ bind("toast-act", "click", function () {
   $("toast").hidden = true;
 });
 bind("account-pill", "click", function () { show("settings"); });
+bind("settings-back", "click", function () { show(ui.prevPage || "today"); });
 bind("signout", "click", function () {
   Store.signOut().then(function () { toast("Signed out"); });
 });
