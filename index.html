@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Under</title>
+<meta name="description" content="A daily spend cap for two people.">
+<meta name="theme-color" content="#0F2230">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Under">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<section class="authwrap" id="page-auth" hidden>
+  <div class="authcard">
+    <div class="mark">Under<em>.</em></div>
+    <p class="lead" id="auth-lead">Sign in to see your spending.</p>
+    <div class="f"><label for="a-email">Email</label>
+      <input id="a-email" type="email" autocomplete="email" inputmode="email"></div>
+    <div class="f"><label for="a-pass">Password</label>
+      <input id="a-pass" type="password" autocomplete="current-password"></div>
+    <div class="msg" id="a-msg"></div>
+    <div class="btnrow">
+      <button class="btn" type="button" id="a-signup">Create account</button>
+      <button class="btn primary" type="button" id="a-signin">Sign in</button>
+    </div>
+    <p class="fineprint" id="a-fine"></p>
+  </div>
+</section>
+
+<section class="authwrap" id="page-claim" hidden>
+  <div class="authcard">
+    <div class="mark">Under<em>.</em></div>
+    <p class="lead">Which one of you is this account?</p>
+    <div class="btnrow" id="claim-people"></div>
+    <div class="f" style="margin-top:16px"><label for="claim-house">Household code</label>
+      <input id="claim-house" autocomplete="off" spellcheck="false"></div>
+    <p class="fineprint">Both of you enter the same code once. It's what joins your two accounts to one set of books.</p>
+    <div class="msg" id="claim-msg"></div>
+    <div class="btnrow">
+      <button class="btn" type="button" id="claim-out">Sign out</button>
+      <button class="btn primary" type="button" id="claim-go">Join</button>
+    </div>
+  </div>
+</section>
+
+<div class="app" id="app-shell">
+
+  <!-- ============ TODAY ============ -->
+  <section id="page-today">
+    <div class="top">
+      <div><div class="mark">Under<em>.</em></div><div class="sub" id="today-date">—</div></div>
+      <button class="pill" id="account-pill">Signed in as <b id="me-name">—</b></button>
+    </div>
+
+    <div class="hero" id="hero">
+      <div class="lab" id="hero-lab">Left to spend today</div>
+      <div class="num"><span class="cur" id="hero-cur">BD</span><span class="int" id="hero-int">0</span><span class="dec" id="hero-dec">.000</span></div>
+      <div class="note" id="hero-note"></div>
+      <div class="track"><i id="hero-track" style="width:0%"></i></div>
+      <span class="banked" id="hero-banked" hidden></span>
+    </div>
+
+    <div class="sec" id="pair-sec"><h2>Also today</h2><span class="meta" id="pair-meta"></span></div>
+    <div class="pair" id="pair"></div>
+
+    <form class="entry" id="entry" autocomplete="off">
+      <div class="field"><input id="input" placeholder="coffee 1.6, sandwich 0.6" aria-label="What was bought and the price"></div>
+      <button class="go" id="go" type="submit" disabled>Add</button>
+    </form>
+    <div class="forwho" id="forwho"></div>
+    <div class="read" id="read"></div>
+
+    <div class="sec"><h2>Last ten days</h2><span class="meta" id="strip-meta"></span></div>
+    <div class="strip" id="strip"></div>
+
+    <div class="sec"><h2 id="ledger-title">Today</h2><span class="meta" id="ledger-meta"></span></div>
+    <div class="list" id="ledger"></div>
+  </section>
+
+  <!-- ============ MONTH ============ -->
+  <section id="page-month" hidden>
+    <div class="mhead">
+      <button class="nav" id="m-prev" aria-label="Previous month">‹</button>
+      <h1 id="m-title">—</h1>
+      <button class="nav" id="m-next" aria-label="Next month">›</button>
+    </div>
+    <div class="filter" id="m-filter"></div>
+    <div class="chart" id="chart"></div>
+    <div class="legend">
+      <span><i></i>spent so far</span>
+      <span class="pace"><i></i>spending at the cap</span>
+    </div>
+    <div class="scrub">
+      <div class="scrubhead">
+        <div><div class="d" id="scrub-date">—</div><div class="v" id="scrub-val">0</div></div>
+        <div class="against" id="scrub-against"></div>
+      </div>
+      <input type="range" id="scrub" min="1" max="31" value="1" aria-label="Pick a day of the month">
+      <div class="list" id="scrub-list"></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="k">Spent day to day</div><div class="v" id="m-daily">—</div></div>
+      <div class="stat"><div class="k">Kept under the cap</div><div class="v good" id="m-kept">—</div></div>
+      <div class="stat"><div class="k">One-off buys</div><div class="v" id="m-extra">—</div></div>
+      <div class="stat"><div class="k">On track to spend</div><div class="v" id="m-proj">—</div></div>
+      <div class="stat"><div class="k">Days under the cap</div><div class="v" id="m-under">—</div></div>
+      <div class="stat"><div class="k">Busiest day</div><div class="v" id="m-worst">—</div></div>
+    </div>
+    <div class="sec"><h2>Everything this month</h2><span class="meta" id="all-meta"></span></div>
+    <div class="search"><input id="q" placeholder="Search items or categories" aria-label="Search this month"></div>
+    <div class="list" id="all"></div>
+  </section>
+
+  <!-- ============ INSIGHTS ============ -->
+  <section id="page-insights" hidden>
+    <div class="mhead"><h1>Where it goes</h1></div>
+    <div class="filter" id="i-filter"></div>
+    <div class="sec"><h2>By category</h2><span class="meta" id="i-window">last 30 days</span></div>
+    <div id="cat-bars"></div>
+    <div class="sec"><h2>By day of the week</h2><span class="meta" id="i-weekmeta"></span></div>
+    <div class="week" id="week"></div>
+    <div class="stats">
+      <div class="stat"><div class="k">Average day</div><div class="v" id="i-avg">—</div></div>
+      <div class="stat"><div class="k">Best run under the cap</div><div class="v good" id="i-streak">—</div></div>
+      <div class="stat"><div class="k">Biggest single buy</div><div class="v" id="i-big">—</div></div>
+      <div class="stat"><div class="k">Days with nothing spent</div><div class="v" id="i-zero">—</div></div>
+    </div>
+    <div class="sec"><h2>Recent one-offs</h2><span class="meta">outside the cap</span></div>
+    <div class="list" id="extras"></div>
+  </section>
+
+  <!-- ============ SETTINGS ============ -->
+  <section id="page-settings" hidden>
+    <div class="mhead"><h1>Settings</h1></div>
+
+    <div class="card">
+      <h3>Account</h3>
+      <p id="acct-line">—</p>
+      <div class="btnrow"><button class="btn" id="signout">Sign out</button></div>
+    </div>
+
+    <div class="card">
+      <h3>Daily cap</h3>
+      <p id="cap-who">The most one of you spends in a day. Each person has their own.</p>
+      <div class="seg" id="cap-person"></div>
+      <div class="gap"></div>
+      <div class="capnum" id="cap-num">BD 4.500</div>
+      <div class="capsub" id="cap-sub">BD 135.000 over 30 days</div>
+      <input type="range" class="cap" id="cap-range" min="0.5" max="25" step="0.25" value="4.5" aria-label="Daily cap">
+      <div class="scale"><span id="cap-min">0.500</span><span id="cap-max">25.000</span></div>
+    </div>
+
+    <div class="card">
+      <h3>Roll unspent money forward</h3>
+      <p>Come in under on Monday and that money is still there on Tuesday. Starts fresh each month.</p>
+      <div class="rowline">
+        <div><div class="t">Bank what isn't spent</div><div class="s" id="carry-state">Off</div></div>
+        <button class="switch" id="carry" role="switch" aria-checked="false"><i></i></button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Sharing</h3>
+      <p id="sync-help">Both phones read and write the same ledger.</p>
+      <div class="syncline"><span class="syncdot" id="sync-dot"></span><span id="sync-text">Checking…</span></div>
+      <div class="gap"></div>
+      <div class="btnrow"><button class="btn" id="sync-now">Sync now</button></div>
+    </div>
+
+    <div class="card">
+      <h3>Currency</h3>
+      <p>Sets the symbol and how many decimals you see.</p>
+      <select id="cur" aria-label="Currency"></select>
+    </div>
+
+    <div class="card">
+      <h3>Appearance</h3>
+      <p>Follows the phone unless you pick one.</p>
+      <div class="seg" id="theme">
+        <button type="button" data-theme="auto" aria-pressed="true">Auto</button>
+        <button type="button" data-theme="light" aria-pressed="false">Light</button>
+        <button type="button" data-theme="dark" aria-pressed="false">Dark</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Your data</h3>
+      <p id="data-meta">—</p>
+      <div class="btnrow">
+        <button class="btn" id="export">Export</button>
+        <button class="btn" id="import">Import</button>
+      </div>
+      <div class="gap"></div>
+      <div class="btnrow"><button class="btn danger" id="wipe">Delete everything</button></div>
+    </div>
+  </section>
+</div>
+
+<div class="toast" id="toast" hidden><span id="toast-msg"></span><button id="toast-act" type="button">Undo</button></div>
+
+<dialog id="edit" aria-label="Edit purchase">
+  <div class="sheet">
+    <h3>Edit purchase</h3>
+    <div class="f"><label for="e-name">Item</label><input id="e-name"></div>
+    <div class="two">
+      <div class="f"><label for="e-amt">Amount</label><input id="e-amt" type="number" step="0.001" min="0" inputmode="decimal"></div>
+      <div class="f"><label for="e-date">Date</label><input id="e-date" type="date"></div>
+    </div>
+    <div class="two">
+      <div class="f"><label for="e-person">Who</label><select id="e-person"></select></div>
+      <div class="f"><label for="e-cat">Category</label><select id="e-cat"></select></div>
+    </div>
+    <div class="f"><label for="e-kind">Counts as</label>
+      <select id="e-kind"><option value="daily">Daily spending</option><option value="extra">One-off</option></select></div>
+    <div class="btnrow">
+      <button class="btn danger" type="button" id="e-del">Delete</button>
+      <button class="btn" type="button" id="e-cancel">Cancel</button>
+      <button class="btn primary" type="button" id="e-save">Save</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="data" aria-label="Your data">
+  <div class="sheet">
+    <h3 id="data-title">Export</h3>
+    <p class="lead" id="data-lead"></p>
+    <div class="f"><textarea id="data-text" spellcheck="false" aria-label="Data"></textarea></div>
+    <div class="btnrow">
+      <button class="btn" type="button" id="data-close">Close</button>
+      <button class="btn primary" type="button" id="data-ok">Copy</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="welcome" aria-label="Who are you">
+  <div class="sheet">
+    <h3>Which one are you?</h3>
+    <p class="lead">This phone will log for you by default. You can switch any time from the top of the screen.</p>
+    <div class="btnrow" id="w-people"></div>
+  </div>
+</dialog>
+
+<nav class="tabs" role="tablist" aria-label="Sections">
+  <div class="inner">
+    <button class="tab" role="tab" data-page="today" aria-selected="true">
+      <svg viewBox="0 0 24 24"><path d="M4 13h4l2 5 4-12 2 7h4"/></svg>Today</button>
+    <button class="tab" role="tab" data-page="month" aria-selected="false">
+      <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Month</button>
+    <button class="tab" role="tab" data-page="insights" aria-selected="false">
+      <svg viewBox="0 0 24 24"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>Insights</button>
+    <button class="tab" role="tab" data-page="settings" aria-selected="false">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 3v2.2M12 18.8V21M21 12h-2.2M5.2 12H3M18.4 5.6l-1.6 1.6M7.2 16.8l-1.6 1.6M18.4 18.4l-1.6-1.6M7.2 7.2 5.6 5.6"/></svg>Settings</button>
+  </div>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script src="store.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
