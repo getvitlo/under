@@ -19,6 +19,27 @@ window.UNDER_CONFIG = {
   defaultCap: 4.5,
   currency: "BHD",          // BHD KWD OMR AED SAR QAR GBP USD EUR
 
+  /* Starting lists for the Budget tab. You can add, rename and remove
+     these in the app afterwards — this is only the first-run list.
+     `expected` is the usual monthly amount; leave 0 if it varies.
+     `person` is whose it is: a person key above, or "J" for joint. */
+  incomeSources: [
+    { id: "salary-h", name: "Hani salary",        person: "H", expected: 0 },
+    { id: "salary-f", name: "Fatima salary",      person: "F", expected: 0 },
+    { id: "tuition",  name: "Tuition",            person: "J", expected: 0 },
+    { id: "app",      name: "App income",         person: "H", expected: 0 },
+    { id: "subsidy",  name: "Government subsidy", person: "J", expected: 0 },
+    { id: "rent-1",   name: "Rental income 1",    person: "J", expected: 0 },
+    { id: "rent-2",   name: "Rental income 2",    person: "J", expected: 0 },
+    { id: "rent-3",   name: "Rental income 3",    person: "J", expected: 0 }
+  ],
+  bills: [
+    { id: "fibre",      name: "STC Fibre",           person: "J", expected: 22.8 },
+    { id: "sim-h",      name: "SIM data — Hani",     person: "H", expected: 11 },
+    { id: "sim-f",      name: "SIM data — Fatima",   person: "F", expected: 11 },
+    { id: "invisalign", name: "Invisalign — Fatima", person: "F", expected: 30 }
+  ],
+
   /* ---- Sharing -----------------------------------------------------
      Leave supabaseUrl empty and the app still works, but only on the
      one device and with no sign-in.
