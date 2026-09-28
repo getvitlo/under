@@ -30,7 +30,7 @@ window.UNDER_CONFIG = {
      sign in it asks which of you you are and for the household code
      below — enter the same code on both accounts and you're looking
      at the same books. Anything random works; the README has more. */
-  supabaseUrl: "",
-  supabaseAnonKey: "",
-  householdId: "change-me-to-something-random"   // the code you both enter once
+  supabaseUrl: "https://vffojuyayshgrnkbpinh.supabase.co",
+  supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmZm9qdXlheXNoZ3Jua2JwaW5oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1MzgyMjUsImV4cCI6MjEwNjExNDIyNX0.NmzBlLP8mOmoUbAmydTEPBxKZbFYheZO__4pqY1TB2M",
+  householdId: "a7942f2f-538a-4c7f-bb9f-9d4a8dc3df8c"   // the code you both enter once
 };
