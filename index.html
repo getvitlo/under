@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Under</title>
 <meta name="description" content="Spending, income and bills for two.">
-<meta name="theme-color" content="#0B1C27">
+<meta name="theme-color" content="#EDF1F2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#01070B" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -21,10 +22,10 @@
    ===================================================================== */
 :root{
   --app-h:100vh;
-  --bg:#EEF1F3; --surface:#FFFFFF; --sunken:#E6EAED; --line:rgba(11,28,39,.07);
-  --text:#0B1C27; --dim:#5F7080; --faint:rgba(11,28,39,.16);
-  --ink:#0B1C27; --on-ink:#F2F6F8; --ink-dim:#8EA3B2; --ink-line:rgba(255,255,255,.12);
-  --brass:#A8763C; --on-brass:#10202B; --sea:#2C6B5E; --rust:#B0432E; --slate:#71818F;
+  --bg:#EDF1F2; --surface:#FFFFFF; --sunken:#E3E9EA; --line:rgba(5,18,26,.07);
+  --text:#051219; --dim:#566873; --faint:rgba(5,18,26,.16);
+  --ink:#051219; --on-ink:#EFF5F4; --ink-dim:#89A09C; --ink-line:rgba(255,255,255,.12);
+  --brass:#116B4F; --on-brass:#FFFFFF; --sea:#15745A; --rust:#B0432E; --slate:#6C7D84;
   --gap:12px; --pad:16px; --r:20px; --r-s:12px;
   --ui:"Archivo","Helvetica Neue",Arial,sans-serif;
   --serif:"Instrument Serif",Georgia,serif;
@@ -32,18 +33,18 @@
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#050C11; --surface:#0C1821; --sunken:#132230; --line:rgba(232,238,242,.07);
-    --text:#E8EEF2; --dim:#8FA3B2; --faint:rgba(232,238,242,.16);
-    --ink:#10283A; --on-ink:#F2F7F9; --ink-dim:#93AEBF; --ink-line:rgba(255,255,255,.10);
-    --brass:#CFA15F; --sea:#4F9C89; --rust:#D66F58; --slate:#7C8E9C;
+    --bg:#01070B; --surface:#071219; --sunken:#0D1D26; --line:rgba(226,238,240,.07);
+    --text:#E4EDEF; --dim:#7F969E; --faint:rgba(226,238,240,.16);
+    --ink:#061822; --on-ink:#EEF7F6; --ink-dim:#86A39D; --ink-line:rgba(255,255,255,.10);
+    --brass:#2E9B74; --on-brass:#02140E; --sea:#3E9E7F; --rust:#D66F58; --slate:#6F8691;
     color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#050C11; --surface:#0C1821; --sunken:#132230; --line:rgba(232,238,242,.07);
-  --text:#E8EEF2; --dim:#8FA3B2; --faint:rgba(232,238,242,.16);
-  --ink:#10283A; --on-ink:#F2F7F9; --ink-dim:#93AEBF; --ink-line:rgba(255,255,255,.10);
-  --brass:#CFA15F; --sea:#4F9C89; --rust:#D66F58; --slate:#7C8E9C;
+  --bg:#01070B; --surface:#071219; --sunken:#0D1D26; --line:rgba(226,238,240,.07);
+  --text:#E4EDEF; --dim:#7F969E; --faint:rgba(226,238,240,.16);
+  --ink:#061822; --on-ink:#EEF7F6; --ink-dim:#86A39D; --ink-line:rgba(255,255,255,.10);
+  --brass:#2E9B74; --on-brass:#02140E; --sea:#3E9E7F; --rust:#D66F58; --slate:#6F8691;
   color-scheme:dark;
 }
 
@@ -51,7 +52,7 @@
 
 /* ---------- base: behaves like an app, not a page ---------- */
 *,*::before,*::after{box-sizing:border-box}
-html{height:100%;margin:0;overflow:hidden;overscroll-behavior:none;-webkit-text-size-adjust:100%}
+html{height:100%;margin:0;background:var(--bg);overflow:hidden;overscroll-behavior:none;-webkit-text-size-adjust:100%}
 body{position:fixed;top:0;left:0;right:0;bottom:0;height:var(--app-h);max-height:100%;margin:0;overflow:hidden;
   overscroll-behavior:none;background:var(--bg);color:var(--text);
   font:15px/1.45 var(--ui);letter-spacing:-.006em;-webkit-font-smoothing:antialiased;
@@ -115,7 +116,7 @@ h1,h2,h3,p{margin:0}
 .herotext{min-width:0;flex:1}
 .herotext .note{font-size:13.5px;color:var(--ink-dim);margin-top:8px}
 .herotext .note b{color:var(--on-ink);font-weight:600}
-.hero.over .money .i{color:#FFB7A6}
+.hero.over .money .i{color:#FFBCAC}
 .pill{display:inline-flex;align-items:center;gap:6px;margin-top:12px;font-size:12px;color:var(--ink-dim);
   border:1px solid var(--ink-line);border-radius:999px;padding:3px 10px}
 
@@ -131,7 +132,7 @@ h1,h2,h3,p{margin:0}
 .ring.over .rv{stroke:var(--rust)}
 .hero .ring .rt{stroke:var(--ink-line)}
 .hero .ring .rv{stroke:var(--brass)}
-.hero .ring.over .rv{stroke:#E2765C}
+.hero .ring.over .rv{stroke:var(--rust)}
 .donut{display:block}
 .donut circle{fill:none}
 
@@ -318,7 +319,7 @@ input[type=range]{width:100%;accent-color:var(--brass);height:28px}
 .version{text-align:center;font-size:12px;color:var(--dim);margin:6px 0 0}
 
 /* ---------- tab bar with a centre add button ---------- */
-.tabs{position:absolute;left:0;right:0;bottom:0;z-index:10;border-top:1px solid var(--line);
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;border-top:1px solid var(--line);
   background:var(--surface);background:color-mix(in srgb,var(--surface) 90%,transparent);
   -webkit-backdrop-filter:saturate(1.4) blur(18px);backdrop-filter:saturate(1.4) blur(18px);
   padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}
@@ -329,13 +330,15 @@ input[type=range]{width:100%;accent-color:var(--brass);height:28px}
 .tab[aria-selected="true"]{color:var(--text)}
 .tab[aria-selected="true"] svg{stroke:var(--brass)}
 .tabadd{justify-self:center;width:54px;height:54px;border-radius:18px;border:none;background:var(--brass);
-  display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(168,118,60,.35);transition:transform .12s}
+  display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(17,107,79,.32);transition:transform .12s}
 .tabadd svg{width:24px;height:24px;stroke:var(--on-brass);stroke-width:2.6;stroke-linecap:round;fill:none}
 .tabadd:active{transform:scale(.93)}
 
 /* ---------- sheets ---------- */
 dialog{border:none;padding:0;background:var(--surface);color:var(--text);margin:auto auto 0;width:100%;max-width:560px;
-  max-height:min(94%, 720px);border-radius:24px 24px 0 0;overflow-y:auto;overscroll-behavior:contain}
+  max-height:100%;border-radius:24px 24px 0 0;overflow-y:auto;overscroll-behavior:contain}
+#add{overflow:hidden}
+#add .sheet{display:flex;flex-direction:column;max-height:100%}
 dialog::backdrop{background:rgba(3,10,15,.5)}
 dialog[open]{animation:sheet .26s cubic-bezier(.2,.85,.25,1)}
 @keyframes sheet{from{transform:translateY(60px);opacity:.3}to{transform:none;opacity:1}}
@@ -392,7 +395,7 @@ dialog[open]{animation:sheet .26s cubic-bezier(.2,.85,.25,1)}
 .save:disabled{opacity:.35}
 
 /* toast */
-.toast{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:30;
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:30;
   background:var(--text);color:var(--bg);border-radius:14px;padding:12px 16px;display:flex;align-items:center;gap:16px;
   font-size:14px;font-weight:500;box-shadow:0 8px 26px rgba(0,0,0,.28);max-width:calc(100vw - 32px)}
 .toast span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -486,6 +489,27 @@ dialog[open]{animation:sheet .26s cubic-bezier(.2,.85,.25,1)}
 .linkrow{display:flex;gap:16px;justify-content:center}
 .linkrow .linkbtn{width:auto;color:var(--dim);font-weight:550;padding:12px 0 2px}
 .linkrow .linkbtn:active{color:var(--brass)}
+
+/* ---- add sheet: everything on one screen ---- */
+#add .amount{padding:14px 0 6px;min-height:0}
+#add .amount .i,#add .amount .d{font-size:clamp(38px, 11vh, 58px)}
+#add .amount .caret{height:clamp(32px, 9vh, 50px)}
+#add .catgrid button{padding:9px 4px 7px;gap:5px}
+#add .catgrid button .ci{width:clamp(26px, 4.2vh, 34px);height:clamp(26px, 4.2vh, 34px);border-radius:10px}
+#add .linkrow .linkbtn{padding:9px 0 2px}
+#add .opts{padding:4px 0 0;gap:6px}
+#add .opt{padding:6px 11px;font-size:13px}
+#add .explain{margin-top:6px;font-size:12px}
+#add .keys{gap:7px;margin-top:10px}
+#add .keys button{height:clamp(40px, 6.4vh, 54px);border-radius:14px;font-size:clamp(19px, 2.8vh, 24px)}
+#add .save{height:clamp(46px, 6.6vh, 56px);margin-top:10px;font-size:16px}
+#add .pick button{padding:9px 11px}
+#add .what.note{padding:6px 0 0;font-size:16px!important}
+@media (max-height: 700px){
+  #add .sheet{padding-top:4px}
+  #add .grab{margin-bottom:8px}
+  #add .typeseg button{padding:6px 10px;font-size:13px}
+}
 
 </style>
 </head>
@@ -1238,7 +1262,7 @@ window.addEventListener("resize", fitHeight);
 window.addEventListener("orientationchange", function () { setTimeout(fitHeight, 300); });
 /* bind quietly skips anything missing, so one stray id can never take the whole app down */
 function bind(id, ev, fn) { var el = $(id); if (el) el.addEventListener(ev, fn); }
-var VERSION = "9";
+var VERSION = "10";
 /* The buttons you tap instead of typing. `kind` is what it counts as by default. */
 var QUICK = [
   { cat: "Coffee",      label: "Coffee",    kind: "daily" },
@@ -2072,7 +2096,10 @@ var add = {};
 function openAdd(type, presetCat) {
   add = { type: type || "spend", who: ui.me, kind: "daily", kindTouched: false, catTouched: false,
           date: ui.day || TODAY, custom: false, src: null, bill: null, cat: null, showMore: false, note: false };
-  if (presetCat) { var q = catOf(presetCat); add.cat = q.cat; add.kind = q.kind; }
+  if (presetCat) {
+    var q = catOf(presetCat); add.cat = q.cat; add.kind = q.kind;
+    add.showMore = MORE_CATS.some(function (m) { return m.cat === q.cat; });
+  }
   if (add.type !== "spend") add.date = TODAY;
   $("add-amt").value = ""; $("add-name").value = "";
   $("add-name").hidden = true; $("add-note").hidden = false;
@@ -2137,10 +2164,10 @@ function paintAdd() {
   $("add-kind").hidden = t !== "spend";
 
   if (t === "spend") {
-    var list = QUICK.concat(add.showMore ? MORE_CATS : []);
-    if (add.cat && !list.some(function (q) { return q.cat === add.cat; })) list = list.concat([catOf(add.cat)]);
+    /* two pages of categories rather than one long grid, so the sheet never scrolls */
+    var list = add.showMore ? MORE_CATS : QUICK;
     $("add-cats").innerHTML = list.map(function (q) { return catButton(q, add.cat === q.cat); }).join("");
-    $("add-more").hidden = add.showMore;
+    $("add-more").textContent = add.showMore ? "Everyday categories" : "More categories";
     $("add-who").innerHTML = PERSON + esc(add.who === ui.me ? "Mine" : nameOf(add.who));
     $("add-kind").innerHTML = TAG + (add.kind === "daily" ? "Daily" : "One-off");
     $("add-kind").classList.toggle("on", add.kind === "extra");
@@ -2257,7 +2284,7 @@ bind("add-cats", "click", function (e) {
   $("add-cat").value = q.cat;
   paintAdd();
 });
-bind("add-more", "click", function () { add.showMore = true; paintAdd(); });
+bind("add-more", "click", function () { add.showMore = !add.showMore; paintAdd(); });
 bind("add-note", "click", function () {
   $("add-name").hidden = false; $("add-note").hidden = true;
   keysVisible(false); $("add-name").focus();
