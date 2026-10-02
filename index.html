@@ -20,6 +20,7 @@
    One type scale, one spacing unit (12/16), one widget shape (20px).
    ===================================================================== */
 :root{
+  --app-h:100vh;
   --bg:#EEF1F3; --surface:#FFFFFF; --sunken:#E6EAED; --line:rgba(11,28,39,.07);
   --text:#0B1C27; --dim:#5F7080; --faint:rgba(11,28,39,.16);
   --ink:#0B1C27; --on-ink:#F2F6F8; --ink-dim:#8EA3B2; --ink-line:rgba(255,255,255,.12);
@@ -46,10 +47,13 @@
   color-scheme:dark;
 }
 
+@supports (height: 100dvh) { :root{ --app-h:100dvh } }
+
 /* ---------- base: behaves like an app, not a page ---------- */
 *,*::before,*::after{box-sizing:border-box}
-html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none;-webkit-text-size-adjust:100%}
-body{position:fixed;top:0;left:0;right:0;height:var(--app-h,100%);background:var(--bg);color:var(--text);
+html{height:100%;margin:0;overflow:hidden;overscroll-behavior:none;-webkit-text-size-adjust:100%}
+body{position:fixed;top:0;left:0;right:0;bottom:0;height:var(--app-h);max-height:100%;margin:0;overflow:hidden;
+  overscroll-behavior:none;background:var(--bg);color:var(--text);
   font:15px/1.45 var(--ui);letter-spacing:-.006em;-webkit-font-smoothing:antialiased;
   -webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
   touch-action:manipulation}
@@ -331,7 +335,7 @@ input[type=range]{width:100%;accent-color:var(--brass);height:28px}
 
 /* ---------- sheets ---------- */
 dialog{border:none;padding:0;background:var(--surface);color:var(--text);margin:auto auto 0;width:100%;max-width:560px;
-  max-height:94svh;border-radius:24px 24px 0 0;overflow-y:auto;overscroll-behavior:contain}
+  max-height:min(94%, 720px);border-radius:24px 24px 0 0;overflow-y:auto;overscroll-behavior:contain}
 dialog::backdrop{background:rgba(3,10,15,.5)}
 dialog[open]{animation:sheet .26s cubic-bezier(.2,.85,.25,1)}
 @keyframes sheet{from{transform:translateY(60px);opacity:.3}to{transform:none;opacity:1}}
@@ -430,7 +434,7 @@ dialog[open]{animation:sheet .26s cubic-bezier(.2,.85,.25,1)}
   .w{margin-bottom:16px}
   .wgrid,.stats{margin-bottom:16px;gap:16px}
   .tabs .inner{max-width:560px}
-  dialog{margin:auto;border-radius:24px;max-width:460px;max-height:88vh}
+  dialog{margin:auto;border-radius:24px;max-width:460px;max-height:min(88%, 760px)}
   dialog[open]{animation:pop .18s ease}
   .grab{display:none}
   @keyframes pop{from{transform:scale(.97);opacity:.4}to{transform:none;opacity:1}}
@@ -1218,23 +1222,23 @@ var ui = { day:null, month:null, editing:null, undo:null, timer:null, q:"",
 
 var $ = function (id) { return document.getElementById(id); };
 
-/* Size the app to the actual screen. Installed on an iPhone, the browser can
-   report a height short of the screen, leaving a gap under the tab bar. */
+/* Height is handled in CSS (100dvh). The only thing worth watching is iOS
+   installed-app mode, where the window can report short of the real screen. */
 function fitHeight() {
-  var h = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
-  if (window.navigator.standalone) {
-    var portrait = window.matchMedia && window.matchMedia("(orientation: portrait)").matches;
+  var h = window.innerHeight || 0;
+  if (window.navigator.standalone && screen && screen.height) {
+    var portrait = !window.matchMedia || window.matchMedia("(orientation: portrait)").matches;
     var sh = portrait ? Math.max(screen.width, screen.height) : Math.min(screen.width, screen.height);
-    if (sh > h) h = sh;
+    if (sh > h + 8) { document.documentElement.style.setProperty("--app-h", sh + "px"); return; }
   }
-  document.documentElement.style.setProperty("--app-h", h + "px");
+  document.documentElement.style.removeProperty("--app-h");
 }
 fitHeight();
 window.addEventListener("resize", fitHeight);
-window.addEventListener("orientationchange", function () { setTimeout(fitHeight, 250); });
+window.addEventListener("orientationchange", function () { setTimeout(fitHeight, 300); });
 /* bind quietly skips anything missing, so one stray id can never take the whole app down */
 function bind(id, ev, fn) { var el = $(id); if (el) el.addEventListener(ev, fn); }
-var VERSION = "8";
+var VERSION = "9";
 /* The buttons you tap instead of typing. `kind` is what it counts as by default. */
 var QUICK = [
   { cat: "Coffee",      label: "Coffee",    kind: "daily" },
