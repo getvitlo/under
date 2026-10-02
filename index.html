@@ -511,6 +511,40 @@ dialog[open]{animation:sheet .26s cubic-bezier(.2,.85,.25,1)}
   #add .typeseg button{padding:6px 10px;font-size:13px}
 }
 
+/* ---- Home: the day, large ---- */
+.hero.big{padding:18px var(--pad) 16px}
+.bigspend{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.bigspend .money{font-size:clamp(44px,13vw,60px);line-height:1}
+.bigsub{font-size:13.5px;color:var(--ink-dim)}
+.capbar{height:10px;border-radius:5px;background:var(--ink-line);margin:16px 0 0;overflow:hidden;position:relative}
+.capbar i{display:block;height:100%;border-radius:5px;background:var(--brass);transition:width .4s ease}
+.capbar i.over{background:var(--rust)}
+.capbar u{position:absolute;top:0;bottom:0;width:2px;background:rgba(255,255,255,.5)}
+.herostats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px;
+  border-top:1px solid var(--ink-line);padding-top:12px}
+.herostats .k{display:block;font-size:11.5px;color:var(--ink-dim);margin-bottom:3px}
+.herostats .money{font-size:17px}
+.herostats .money .c{display:none}
+.hero.over .capbar i{background:var(--rust)}
+
+.stats3{grid-template-columns:repeat(3,1fr)}
+.stats3 .w{padding:12px 10px}
+.stats3 .k{font-size:11.5px;color:var(--dim);display:block;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stats3 .money{font-size:17px}
+.stats3 .s{font-size:11.5px;color:var(--dim);margin-top:4px}
+.stats3 .up{color:var(--rust)}
+.stats3 .down{color:var(--sea)}
+
+/* ---- Spending: saved or over, so far ---- */
+.diffcard .diffrow{display:flex;align-items:center;gap:14px}
+.diffcard .money{flex:0 0 auto}
+.diffcard .good{color:var(--sea)}
+.diffcard .bad{color:var(--rust)}
+.diffbar{flex:1;height:10px;border-radius:5px;background:var(--sunken);position:relative;overflow:hidden}
+.diffbar i{position:absolute;top:0;bottom:0;background:var(--sea);border-radius:5px}
+.diffbar i.bad{background:var(--rust)}
+.diffbar u{position:absolute;top:-2px;bottom:-2px;left:50%;width:2px;background:var(--faint)}
+
 </style>
 </head>
 <body>
@@ -559,17 +593,24 @@ dialog[open]{animation:sheet .26s cubic-bezier(.2,.85,.25,1)}
     </header>
     <div class="stack">
 
-    <div class="w hero" id="hero">
-      <div class="wh"><span class="wt" id="hero-lab">Left to spend today</span><span class="wm" id="hero-meta"></span></div>
-      <div class="herorow">
-        <div class="ringwrap" id="hero-ring"></div>
-        <div class="herotext">
-          <div class="money xl" id="hero-amt"></div>
-          <div class="note" id="hero-note"></div>
-        </div>
+    <div class="w hero big" id="hero">
+      <div class="wh"><span class="wt" id="hero-lab">Spent today</span><span class="wm" id="hero-meta"></span></div>
+      <div class="bigspend">
+        <div class="money" id="hero-spent"></div>
+        <div class="bigsub" id="hero-sub"></div>
+      </div>
+      <div class="capbar"><i id="hero-fill"></i><u id="hero-mark"></u></div>
+      <div class="herostats">
+        <div><span class="k">Left</span><span class="money sm" id="hero-amt"></span></div>
+        <div><span class="k">Cap used</span><span class="money sm" id="hero-pct"></span></div>
+        <div><span class="k">Items</span><span class="money sm" id="hero-count"></span></div>
       </div>
       <span class="pill" id="hero-banked" hidden></span>
+      <div class="note" id="hero-note" hidden></div>
+      <div class="ringwrap" id="hero-ring" hidden></div>
     </div>
+
+    <div class="wgrid stats3" id="todaystats"></div>
 
     <div class="w">
       <div class="wh"><span class="wt">Add to today</span><span class="wm">tap, then type the price</span></div>
@@ -686,6 +727,15 @@ dialog[open]{animation:sheet .26s cubic-bezier(.2,.85,.25,1)}
     </header>
     <div class="stack">
     <div class="filter wide" id="m-filter"></div>
+
+    <div class="w diffcard" id="diff">
+      <div class="wh"><span class="wt" id="diff-lab">Against the cap so far</span><span class="wm" id="diff-days"></span></div>
+      <div class="diffrow">
+        <div class="money lg" id="diff-amt"></div>
+        <div class="diffbar"><i id="diff-bar"></i><u id="diff-mid"></u></div>
+      </div>
+      <div class="wfoot" id="diff-note"></div>
+    </div>
 
     <div class="w">
       <div class="chart" id="chart"></div>
@@ -1262,7 +1312,7 @@ window.addEventListener("resize", fitHeight);
 window.addEventListener("orientationchange", function () { setTimeout(fitHeight, 300); });
 /* bind quietly skips anything missing, so one stray id can never take the whole app down */
 function bind(id, ev, fn) { var el = $(id); if (el) el.addEventListener(ev, fn); }
-var VERSION = "10";
+var VERSION = "11";
 /* The buttons you tap instead of typing. `kind` is what it counts as by default. */
 var QUICK = [
   { cat: "Coffee",      label: "Coffee",    kind: "daily" },
@@ -1484,43 +1534,54 @@ function renderToday() {
   $("today-date").textContent = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
   renderWho();
 
-  /* hero: what you have left */
+  /* hero: the day itself, large */
   var mine = dayTotal(ui.day, ui.me), bank = bankedBefore(ui.day, ui.me);
   var allow = capOf(ui.me) + bank, left = round(allow - mine), over = left < 0;
   var used = allow ? mine / allow : 0;
+  var dayItems = onDay(ui.day, "all").filter(function (x) { return x.person === ui.me || x.logged_by === ui.me; });
   $("hero").classList.toggle("over", over);
-  $("hero-lab").textContent = over ? "Over your cap" : (ui.day === TODAY ? "Left to spend today" : "Left that day");
+  $("hero-lab").textContent = ui.day === TODAY ? "Spent today" : "Spent that day";
   $("hero-meta").textContent = ui.day === TODAY ? "" : fromKey(ui.day).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
-  $("hero-ring").outerHTML = '<div id="hero-ring">' + ring(used, 88, 9, over, Math.round(used * 100) + "%", "used") + "</div>";
-  $("hero-amt").innerHTML = nice(Math.abs(left));
-  $("hero-note").innerHTML = "<b>" + fmt(mine) + "</b> of " + fmt(allow) + " spent";
+  $("hero-spent").innerHTML = nice(mine);
+  $("hero-sub").textContent = "of " + fmt(allow) + (bank > 0 ? " (incl. " + fmt(bank) + " banked)" : "") + " cap";
+  $("hero-fill").className = over ? "over" : "";
+  $("hero-fill").style.width = Math.min(used, 1) * 100 + "%";
+  $("hero-mark").style.left = (allow && bank > 0 ? Math.min(capOf(ui.me) / allow, 1) * 100 : 100) + "%";
+  $("hero-amt").innerHTML = (over ? '<span class="i" style="color:#FFBCAC">−' + fmt(Math.abs(left)).replace(/^/, "") + "</span>" : nice(left, { nocur: true }));
+  $("hero-pct").innerHTML = '<span class="i">' + Math.round(used * 100) + '</span><span class="d">%</span>';
+  $("hero-count").innerHTML = '<span class="i">' + dayItems.length + "</span>";
   var hb = $("hero-banked");
   if (carry() && bank > 0) { hb.hidden = false; hb.textContent = fmt(bank) + " banked from earlier this month"; }
   else hb.hidden = true;
 
-  /* partner and joint, as two small widgets */
-  var others = ALL.filter(function (p) { return p.key !== ui.me; });
-  $("pair").innerHTML = others.map(function (p) {
-    var v = dayTotal(ui.day, p.key), cap = capFor(p.key), ov = cap > 0 && v > cap;
-    return '<div class="w stat"><div class="k"><span class="initial">' + esc(p.key) + "</span>" + esc(p.name) + "</div>" +
-      '<div class="v money md' + (ov ? " over" : "") + '">' + nice(v, { nocur: true }) + "</div>" +
-      (cap ? '<div class="bar"><i class="' + (ov ? "over" : "") + '" style="width:' + Math.min(v / cap, 1) * 100 + '%"></i></div>' +
-             '<div class="s">of ' + fmt(cap) + " today</div>"
-           : '<div class="s">shared · no cap</div>') + "</div>";
-  }).join("");
-
-  /* this month, at a glance */
-  var mf = figures(mkey(TODAY));
-  $("mc-title").textContent = monthLabel(mkey(TODAY)).split(" ")[0];
-  $("mc-in").innerHTML = mf.inc ? nice(mf.inc, { nocur: true }) : '<span class="i" style="color:var(--dim)">—</span>';
-  $("mc-out").innerHTML = nice(mf.out, { nocur: true });
-  $("mc-kept").innerHTML = mf.inc ? '<span class="i">' + Math.round(Math.max(mf.saved, 0) / mf.inc * 100) + '</span><span class="d">%</span>'
-                                 : '<span class="i" style="color:var(--dim)">—</span>';
-  $("mc-kept-wrap").className = mf.inc && mf.saved < 0 ? "bad" : "";
-  $("mc-donut").outerHTML = '<div id="mc-donut">' + donut([
-    { v: mf.bills, c: "var(--slate)" }, { v: mf.daily, c: "var(--sea)" }, { v: mf.extra, c: "var(--brass)" },
-    { v: Math.max(mf.saved, 0), c: "var(--faint)" }], 64, 9, mf.inc ? Math.round(Math.max(mf.saved, 0) / mf.inc * 100) + "%" : "", mf.inc ? "kept" : "") + "</div>";
-  $("mc-nudge").hidden = mf.inc > 0;
+  /* three quick reads on the day */
+  var yk = fromKey(ui.day); yk.setDate(yk.getDate() - 1);
+  var yday = dayTotal(key(yk), ui.me);
+  var gap = mine - yday;
+  var last7 = 0, last7n = 0;
+  for (var q = 1; q <= 7; q++) {
+    var dq = fromKey(ui.day); dq.setDate(dq.getDate() - q);
+    var kq = key(dq);
+    if (onDay(kq, ui.me).length) { last7 += dayTotal(kq, ui.me); last7n++; }
+  }
+  var avg7 = last7n ? last7 / last7n : 0;
+  var mkNow = mkey(ui.day), msofar = 0, mdays = 0;
+  for (var dd = 1; dd <= +ui.day.slice(8); dd++) {
+    var kk = mkNow + "-" + String(dd).padStart(2, "0");
+    msofar += dayTotal(kk, ui.me);
+    if (onDay(kk, ui.me).length) mdays++;
+  }
+  var monthCapSoFar = capOf(ui.me) * (+ui.day.slice(8));
+  var ahead = monthCapSoFar - msofar;
+  $("todaystats").innerHTML =
+    '<div class="w"><span class="k">vs yesterday</span><span class="money ' + (gap > 0 ? "up" : gap < 0 ? "down" : "") + '">' +
+      (gap === 0 ? '<span class="i">—</span>' : (gap > 0 ? '<span class="i">+' : '<span class="i">−') + fmt(Math.abs(gap)) + "</span>") +
+      '</span><div class="s">' + (yday ? fmt(yday) + " then" : "nothing then") + "</div></div>" +
+    '<div class="w"><span class="k">7-day average</span><span class="money">' + nice(avg7, { nocur: true }) +
+      '</span><div class="s">' + (avg7 ? (mine <= avg7 ? "under it today" : "over it today") : "no history yet") + "</div></div>" +
+    '<div class="w"><span class="k">Month so far</span><span class="money ' + (ahead < 0 ? "up" : "down") + '">' +
+      (ahead < 0 ? '<span class="i">−' : '<span class="i">+') + fmt(Math.abs(ahead)) + "</span></span>" +
+      '<div class="s">' + (ahead < 0 ? "over your cap" : "kept back") + "</div></div>";
 
   /* the same eight buttons every time — tap one and just type the price */
   $("quick").innerHTML = QUICK.map(function (q) { return catButton(q); }).join("");
@@ -1614,6 +1675,29 @@ function renderMonth() {
   $("m-proj").className = "v " + (cap && logged && daily / logged > cap ? "bad" : "");
   $("m-under").textContent = cap && logged ? underCount + " of " + logged : "—";
   $("m-worst").textContent = worst ? fromKey(worst).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : "—";
+
+  /* how far ahead or behind the cap you are, counting days gone by */
+  var upto = mk === mkey(TODAY) ? fromKey(TODAY).getDate() : s.n;
+  var spentSoFar = 0;
+  for (var z = 1; z <= upto; z++) spentSoFar += s.totals[z - 1];
+  var allowed = cap * upto, diff = allowed - spentSoFar;
+  $("diff").hidden = !cap;
+  if (cap) {
+    $("diff-lab").textContent = diff >= 0 ? "Saved against the cap" : "Over the cap";
+    $("diff-days").textContent = upto + (upto === 1 ? " day in" : " days in") + " · cap " + fmt(allowed);
+    $("diff-amt").innerHTML = nice(Math.abs(diff));
+    $("diff-amt").className = "money lg " + (diff >= 0 ? "good" : "bad");
+    var share = allowed ? Math.min(Math.abs(diff) / allowed, 1) : 0;
+    var bar = $("diff-bar");
+    bar.className = diff >= 0 ? "" : "bad";
+    bar.style.width = (share * 50) + "%";
+    bar.style.left = diff >= 0 ? "50%" : (50 - share * 50) + "%";
+    $("diff-note").textContent = diff >= 0
+      ? "You've spent " + fmt(spentSoFar) + " of the " + fmt(allowed) + " available by now — " +
+        Math.round(spentSoFar / (allowed || 1) * 100) + "% of it."
+      : "You've spent " + fmt(spentSoFar) + " against " + fmt(allowed) + " available by now — about " +
+        fmt(Math.abs(diff) / upto) + " a day over.";
+  }
   renderAllList();
 }
 function drawChart(s, cap) {
