@@ -441,6 +441,48 @@ dialog[open]{animation:sheet .26s cubic-bezier(.2,.85,.25,1)}
 }
 @media (min-width: 900px){ .chart svg{max-height:280px} }
 
+/* ================= v8 ================= */
+.whr{display:flex;gap:8px;align-items:center}
+
+/* category grid — tap one, type the price */
+.catgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.catgrid button{border:none;background:var(--sunken);border-radius:16px;padding:11px 4px 9px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;transition:transform .1s}
+.catgrid button .ci{width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.catgrid button .ci svg{width:17px;height:17px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.catgrid button span.cl{font-size:11.5px;font-weight:550;color:var(--dim);max-width:100%;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.catgrid button:active{transform:scale(.95)}
+.catgrid button[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--brass)}
+.catgrid button[aria-pressed="true"] span.cl{color:var(--text)}
+.catgrid.quick button{background:var(--sunken)}
+.linkbtn{display:block;width:100%;border:none;background:none;color:var(--brass);font-size:13.5px;
+  font-weight:600;padding:12px 0 4px}
+.what.note{font-size:17px!important;font-weight:500;padding:8px 0 2px}
+
+/* where it went today */
+.srow{display:grid;grid-template-columns:76px 1fr 62px;align-items:center;gap:10px;padding:6px 0}
+.srow .sn{font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.srow .st{height:8px;border-radius:4px;background:var(--sunken);overflow:hidden}
+.srow .st i{display:block;height:100%;border-radius:4px}
+.srow .sv{text-align:right;font-size:13px;font-variant-numeric:tabular-nums}
+.srow .sv b{font-weight:650}
+.srow .sv span{color:var(--dim)}
+
+/* the month, as one tappable row */
+.monthrow{display:flex;align-items:center;gap:14px;width:100%;border:none;background:var(--surface);
+  border-radius:var(--r);padding:14px var(--pad);text-align:left}
+.monthrow .mfig{flex:1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.monthrow .k{font-size:11.5px;color:var(--dim)}
+.monthrow .money{margin:2px 0}
+.monthrow .ca{color:var(--dim);font-size:18px}
+.monthrow .bad .i{color:var(--rust)}
+.mwrap{flex:1;min-width:0}
+.mlabel{font-size:12px;color:var(--dim);font-weight:600;margin-bottom:6px}
+.linkrow{display:flex;gap:16px;justify-content:center}
+.linkrow .linkbtn{width:auto;color:var(--dim);font-weight:550;padding:12px 0 2px}
+.linkrow .linkbtn:active{color:var(--brass)}
+
 </style>
 </head>
 <body>
@@ -501,43 +543,47 @@ dialog[open]{animation:sheet .26s cubic-bezier(.2,.85,.25,1)}
       <span class="pill" id="hero-banked" hidden></span>
     </div>
 
+    <div class="w">
+      <div class="wh"><span class="wt">Add to today</span><span class="wm">tap, then type the price</span></div>
+      <div class="catgrid quick" id="quick"></div>
+    </div>
+
+    <div class="w">
+      <div class="wh"><span class="wt" id="ledger-title">Today</span>
+        <span class="whr"><span class="wm" id="ledger-meta"></span><button class="back" id="back-today" hidden>Today</button></span></div>
+      <div class="rows" id="ledger"></div>
+    </div>
+
+    <div class="w" id="split-wrap" hidden>
+      <div class="wh"><span class="wt">Where it went</span><span class="wm" id="split-meta"></span></div>
+      <div id="split"></div>
+    </div>
+
     <div class="wgrid" id="pair"></div>
 
-    <div class="w" id="month-card">
-      <div class="wh">
-        <span class="wt"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="14" rx="2.5"/><path d="M3 10.5h18"/></svg><span id="mc-title">This month</span></span>
-        <button class="wlink" id="mc-open">Budget</button>
-      </div>
-      <div class="mrowgrid">
-        <div class="ringwrap" id="mc-donut"></div>
+    <div class="w">
+      <div class="wh"><span class="wt">Last ten days</span><span class="wm" id="strip-meta"></span></div>
+      <div class="days" id="strip"></div>
+    </div>
+
+    <button class="w monthrow" id="mc-open">
+      <div class="ringwrap" id="mc-donut"></div>
+      <div class="mwrap">
+        <div class="mlabel" id="mc-title">This month</div>
         <div class="mfig">
           <div><div class="k">In</div><div class="money md" id="mc-in"></div></div>
           <div><div class="k">Out</div><div class="money md" id="mc-out"></div></div>
           <div id="mc-kept-wrap"><div class="k">Kept</div><div class="money md" id="mc-kept"></div></div>
         </div>
       </div>
-      <button class="cta" id="mc-nudge" hidden>
-        <span class="ci"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>
-        Record this month's income<span class="ca">›</span>
-      </button>
-    </div>
+      <span class="ca">›</span>
+    </button>
+    <button class="cta" id="mc-nudge" hidden>
+      <span class="ci"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>
+      Record this month's income<span class="ca">›</span>
+    </button>
 
-    <div class="w" id="again-wrap">
-      <div class="wh"><span class="wt"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3"/><path d="M18 3v4h-4M6 21v-4h4"/></svg>Log again</span><span class="wm">one tap, for you</span></div>
-      <div class="chips" id="again"></div>
     </div>
-
-    <div class="w">
-      <div class="wh"><span class="wt"><svg viewBox="0 0 24 24"><path d="M5 20V11M10 20V6M15 20v-9M20 20V9"/></svg>Last ten days</span><span class="wm" id="strip-meta"></span></div>
-      <div class="days" id="strip"></div>
-    </div>
-
-    <div class="w">
-      <div class="wh"><span class="wt" id="ledger-title">Today</span>
-        <span style="display:flex;gap:8px;align-items:center"><span class="wm" id="ledger-meta"></span><button class="back" id="back-today" hidden>Today</button></span></div>
-      <div class="rows" id="ledger"></div>
-    </div>
-      </div>
   </section>
 
   <!-- ---------- BUDGET ---------- -->
@@ -772,8 +818,12 @@ dialog[open]{animation:sheet .26s cubic-bezier(.2,.85,.25,1)}
     <input type="hidden" id="add-amt" value="">
 
     <div id="add-spend">
-      <input class="what" id="add-name" placeholder="What was it?" autocomplete="off" enterkeyhint="done" aria-label="What was it">
-      <div class="sugg" id="add-sugg"></div>
+      <div class="catgrid" id="add-cats"></div>
+      <div class="linkrow">
+        <button class="linkbtn" id="add-more">More categories</button>
+        <button class="linkbtn" id="add-note">Add a note</button>
+      </div>
+      <input class="what note" id="add-name" placeholder="Add a note" autocomplete="off" enterkeyhint="done" aria-label="Note" hidden>
     </div>
     <div id="add-income" hidden><div class="pick" id="add-src"></div></div>
     <div id="add-bill" hidden><div class="pick" id="add-bills"></div></div>
@@ -782,8 +832,7 @@ dialog[open]{animation:sheet .26s cubic-bezier(.2,.85,.25,1)}
       <button type="button" class="opt" id="add-who"></button>
       <button type="button" class="opt" id="add-kind"></button>
       <button type="button" class="opt" id="add-when"></button>
-      <span class="opt" id="add-cat-wrap"><span id="add-cat-label">Category</span>
-        <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg><select id="add-cat" aria-label="Category"></select></span>
+      <select id="add-cat" aria-label="Category" hidden></select>
     </div>
     <input id="add-date" type="date" class="datefield" hidden aria-label="Pick a date">
     <div class="explain" id="add-kind-note"></div>
@@ -1185,7 +1234,36 @@ window.addEventListener("resize", fitHeight);
 window.addEventListener("orientationchange", function () { setTimeout(fitHeight, 250); });
 /* bind quietly skips anything missing, so one stray id can never take the whole app down */
 function bind(id, ev, fn) { var el = $(id); if (el) el.addEventListener(ev, fn); }
-var VERSION = "7";
+var VERSION = "8";
+/* The buttons you tap instead of typing. `kind` is what it counts as by default. */
+var QUICK = [
+  { cat: "Coffee",      label: "Coffee",    kind: "daily" },
+  { cat: "Eating out",  label: "Food",      kind: "daily" },
+  { cat: "Groceries",   label: "Grocery",   kind: "daily" },
+  { cat: "Fuel",        label: "Fuel",      kind: "daily" },
+  { cat: "Transport",   label: "Transport", kind: "daily" },
+  { cat: "Clothing",    label: "Shopping",  kind: "extra" },
+  { cat: "Medical",     label: "Health",    kind: "extra" },
+  { cat: "Other",       label: "Other",     kind: "daily" }
+];
+var MORE_CATS = [
+  { cat: "Home",          label: "Home",     kind: "extra" },
+  { cat: "Car",           label: "Car",      kind: "extra" },
+  { cat: "Electronics",   label: "Tech",     kind: "extra" },
+  { cat: "Gifts",         label: "Gifts",    kind: "extra" },
+  { cat: "Travel",        label: "Travel",   kind: "extra" },
+  { cat: "Subscriptions", label: "Subs",     kind: "extra" }
+];
+function catOf(cat) {
+  var hit = null;
+  QUICK.concat(MORE_CATS).forEach(function (q) { if (q.cat === cat) hit = q; });
+  return hit || { cat: cat, label: cat, kind: "daily" };
+}
+function catButton(q, on) {
+  return '<button type="button" data-cat="' + esc(q.cat) + '" aria-pressed="' + !!on + '">' +
+    '<span class="ci" style="background:' + (COLOR[q.cat] || COLOR.Other) + '"><svg viewBox="0 0 24 24"><path d="' +
+    (ICONS[q.cat] || ICONS.Other) + '"/></svg></span><span class="cl">' + esc(q.label) + "</span></button>";
+}
 
 /* ---------- settings held in the store ---------- */
 function caps() { return Store.getPref("caps", {}) || {}; }
@@ -1416,14 +1494,8 @@ function renderToday() {
     { v: Math.max(mf.saved, 0), c: "var(--faint)" }], 64, 9, mf.inc ? Math.round(Math.max(mf.saved, 0) / mf.inc * 100) + "%" : "", mf.inc ? "kept" : "") + "</div>";
   $("mc-nudge").hidden = mf.inc > 0;
 
-  /* regulars */
-  var reps = frequent(ui.me, 12).filter(function (r) { return r.kind === "daily"; }).slice(0, 6);
-  $("again-wrap").hidden = !reps.length;
-  ui.reps = reps;
-  $("again").innerHTML = reps.map(function (r, n) {
-    return '<button type="button" data-again="' + n + '"><span class="dot" style="background:' +
-      (COLOR[r.cat] || COLOR.Other) + '"></span>' + esc(r.name) + "<b>" + fmt(r.amount) + "</b></button>";
-  }).join("");
+  /* the same eight buttons every time — tap one and just type the price */
+  $("quick").innerHTML = QUICK.map(function (q) { return catButton(q); }).join("");
 
   /* ten days, yours, against your cap */
   var strip = "", t = new Date(), under = 0, logged = 0, cap = capOf(ui.me), top = cap * 1.5;
@@ -1441,18 +1513,32 @@ function renderToday() {
 
   /* what you logged */
   var items = onDay(ui.day, "all").filter(function (x) { return x.person === ui.me || x.logged_by === ui.me; });
+  var dayAll = items.reduce(function (s, x) { return s + x.amount; }, 0);
   $("ledger-title").textContent = ui.day === TODAY ? "Today" : dayName(ui.day);
   $("back-today").hidden = ui.day === TODAY;
-  $("ledger-meta").textContent = items.length ? money(items.reduce(function (s, x) { return s + x.amount; }, 0)) : "";
-  $("ledger").innerHTML = items.length ? items.map(function (x) { return row(x); }).join("")
-    : '<div class="blank">' + (ui.day === TODAY ? "Nothing yet today. Tap + to log what you spend." : "Nothing logged that day.") + "</div>";
+  $("ledger-meta").textContent = items.length ? money(dayAll) : "";
+  $("ledger").innerHTML = items.length ? items.map(function (x) { return row(x, false, dayAll); }).join("")
+    : '<div class="blank">' + (ui.day === TODAY ? "Nothing yet today. Tap a button above to add something." : "Nothing logged that day.") + "</div>";
+
+  /* where the day went, as shares */
+  var split = {};
+  items.forEach(function (x) { split[x.cat] = (split[x.cat] || 0) + x.amount; });
+  var sl = Object.keys(split).sort(function (a, b) { return split[b] - split[a]; });
+  $("split-wrap").hidden = sl.length < 2;
+  $("split-meta").textContent = sl.length ? "share of " + fmt(dayAll) : "";
+  $("split").innerHTML = sl.map(function (c) {
+    return '<div class="srow"><span class="sn">' + c + '</span><span class="st"><i style="width:' +
+      (dayAll ? split[c] / dayAll * 100 : 0) + "%;background:" + (COLOR[c] || COLOR.Other) + '"></i></span>' +
+      '<span class="sv"><b>' + Math.round(split[c] / dayAll * 100) + "%</b> <span>" + fmt(split[c]) + "</span></span></div>";
+  }).join("");
 }
-function row(i, withDate) {
+function row(i, withDate, outOf) {
+  var share = outOf > 0 ? Math.round(i.amount / outOf * 100) + "% of the day" : null;
   return '<button class="row" data-edit="' + i.id + '">' + icon(i.cat) +
     '<span class="tx"><span class="t1" style="display:block">' + esc(i.name) +
     (i.kind === "extra" ? '<span class="tag">one-off</span>' : "") + '</span><span class="t2" style="display:block">' +
     (withDate ? fromKey(i.date).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) + " · " : "") +
-    esc(nameOf(i.person)) + " · " + i.cat + "</span></span>" +
+    (share ? esc(nameOf(i.person)) + " · " + share : esc(nameOf(i.person)) + " · " + i.cat) + "</span></span>" +
     '<span class="val"><span class="v1" style="display:block">' + fmt(i.amount) + "</span></span></button>";
 }
 
@@ -1979,15 +2065,17 @@ bind("signout", "click", function () {
 /* ---------- add sheet: keypad amount, big "what was it", tidy options ---------- */
 var add = {};
 
-function openAdd(type) {
+function openAdd(type, presetCat) {
   add = { type: type || "spend", who: ui.me, kind: "daily", kindTouched: false, catTouched: false,
-          date: ui.day || TODAY, custom: false, src: null, bill: null };
+          date: ui.day || TODAY, custom: false, src: null, bill: null, cat: null, showMore: false, note: false };
+  if (presetCat) { var q = catOf(presetCat); add.cat = q.cat; add.kind = q.kind; }
   if (add.type !== "spend") add.date = TODAY;
   $("add-amt").value = ""; $("add-name").value = "";
+  $("add-name").hidden = true; $("add-note").hidden = false;
   $("add-cat").innerHTML = CATS.map(function (c) { return '<option value="' + c + '">' + c + "</option>"; }).join("");
-  $("add-cat").value = "Other";
+  $("add-cat").value = add.cat || "Other";
   keysVisible(true);
-  paintAdd(); suggest();
+  paintAdd();
   $("add").showModal();
   try { $("add-view").focus({ preventScroll: true }); } catch (e) {}
 }
@@ -2043,13 +2131,15 @@ function paintAdd() {
   $("add-bill").hidden = t !== "bill";
   $("add-who").hidden = t !== "spend";
   $("add-kind").hidden = t !== "spend";
-  $("add-cat-wrap").hidden = t !== "spend";
 
   if (t === "spend") {
+    var list = QUICK.concat(add.showMore ? MORE_CATS : []);
+    if (add.cat && !list.some(function (q) { return q.cat === add.cat; })) list = list.concat([catOf(add.cat)]);
+    $("add-cats").innerHTML = list.map(function (q) { return catButton(q, add.cat === q.cat); }).join("");
+    $("add-more").hidden = add.showMore;
     $("add-who").innerHTML = PERSON + esc(add.who === ui.me ? "Mine" : nameOf(add.who));
     $("add-kind").innerHTML = TAG + (add.kind === "daily" ? "Daily" : "One-off");
     $("add-kind").classList.toggle("on", add.kind === "extra");
-    $("add-cat-label").textContent = (!add.catTouched && !$("add-name").value.trim()) ? "Category" : $("add-cat").value;
     $("add-kind-note").textContent = add.kind === "daily"
       ? (add.who === JOINT.key ? "Shared — counts for the day, against neither cap." : "Comes out of " + (add.who === ui.me ? "your " : nameOf(add.who) + "'s ") + fmt(capFor(add.who)) + " daily cap.")
       : "One-off — kept outside the daily cap.";
@@ -2077,31 +2167,23 @@ function paintAdd() {
 
   renderAmount();
   var amt = parseFloat($("add-amt").value || "");
-  var ok = amt > 0 && isFinite(amt) && (t === "spend" || (t === "income" && add.src) || (t === "bill" && add.bill));
+  var ok = amt > 0 && isFinite(amt) && ((t === "spend" && add.cat) || (t === "income" && add.src) || (t === "bill" && add.bill));
   $("add-save").disabled = !ok;
   var verb = t === "spend" ? "Add" : t === "income" ? "Record" : "Mark paid";
-  $("add-save").textContent = amt > 0 && isFinite(amt) ? verb + " · " + money(amt) : (t === "income" && !add.src ? "Pick where it's from" : t === "bill" && !add.bill ? "Pick a bill" : verb);
-}
-function suggest() {
-  if (add.type !== "spend") { $("add-sugg").innerHTML = ""; return; }
-  var q = $("add-name").value.trim().toLowerCase();
-  var list = frequent(add.who === JOINT.key ? null : add.who, 12).filter(function (r) {
-    return !q || r.name.toLowerCase().indexOf(q) === 0;
-  }).slice(0, 4);
-  if (q && list.length === 1 && list[0].name.toLowerCase() === q) list = [];
-  $("add-sugg").innerHTML = list.map(function (r, n) {
-    return '<button type="button" data-sugg="' + n + '">' + esc(r.name) + "<b>" + fmt(r.amount) + "</b></button>";
-  }).join("");
-  add.sugg = list;
+  $("add-save").textContent = (t === "spend" && !add.cat) ? "Pick what it was"
+    : (t === "income" && !add.src) ? "Pick where it's from"
+    : (t === "bill" && !add.bill) ? "Pick a bill"
+    : (amt > 0 && isFinite(amt) ? verb + " · " + money(amt) : verb);
 }
 function saveAdd() {
   var amt = parseFloat($("add-amt").value || "");
   if (!(amt > 0) || !isFinite(amt)) return;
   var date = add.date, t = add.type;
   if (t === "spend") {
-    var name = $("add-name").value.trim() || "Something";
+    if (!add.cat) return;
+    var name = $("add-name").value.trim() || catOf(add.cat).label;
     name = name.charAt(0).toUpperCase() + name.slice(1);
-    var item = { id: uid(), date: date, person: add.who, name: name.slice(0, 60), amount: round(amt), cat: $("add-cat").value, kind: add.kind };
+    var item = { id: uid(), date: date, person: add.who, name: name.slice(0, 60), amount: round(amt), cat: add.cat, kind: add.kind };
     Store.add([item]);
     $("add").close();
     toast("Added " + item.name + " · " + money(item.amount), function () { Store.remove(item.id); });
@@ -2135,7 +2217,7 @@ bind("add-type", "click", function (e) {
   if (t !== "spend" && !add.custom) add.date = TODAY;
   $("add-amt").value = "";
   if (t !== "spend") $("add-name").blur();
-  keysVisible(true); paintAdd(); suggest();
+  keysVisible(true); paintAdd();
 });
 bind("add-keys", "click", function (e) {
   var b = e.target.closest("[data-k]"); if (b) press(b.getAttribute("data-k"));
@@ -2144,25 +2226,10 @@ bind("add-view", "click", function () { $("add-name").blur(); keysVisible(true);
 bind("add-name", "focus", function () { keysVisible(false); });
 bind("add-name", "blur", function () { setTimeout(function () { keysVisible(true); }, 120); });
 bind("add-name", "keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); if (!$("add-save").disabled) saveAdd(); else this.blur(); } });
-bind("add-name", "input", function () {
-  var v = this.value;
-  var m = v.match(/^(.*?)\s+(\d+(?:[.,]\d+)?)\s*$/);   /* "coffee 1.6" still works */
-  if (m && !$("add-amt").value) { $("add-amt").value = m[2].replace(",", "."); this.value = m[1]; v = m[1]; }
-  var c = classify(v);
-  if (!add.catTouched) $("add-cat").value = v.trim() ? c.cat : "Other";
-  if (!add.kindTouched) add.kind = v.trim() ? c.kind : "daily";
-  paintAdd(); suggest();
-});
-bind("add-sugg", "click", function (e) {
-  var b = e.target.closest("[data-sugg]"); if (!b) return;
-  var r = add.sugg[+b.getAttribute("data-sugg")]; if (!r) return;
-  $("add-name").value = r.name; $("add-amt").value = String(r.amount);
-  $("add-cat").value = r.cat; add.kind = r.kind; add.catTouched = add.kindTouched = true;
-  paintAdd(); suggest();
-});
+bind("add-name", "input", function () { add.note = true; });
 bind("add-who", "click", function () {
   var keys = ALL.map(function (p) { return p.key; });
-  add.who = keys[(keys.indexOf(add.who) + 1) % keys.length]; paintAdd(); suggest();
+  add.who = keys[(keys.indexOf(add.who) + 1) % keys.length]; paintAdd();
 });
 bind("add-kind", "click", function () { add.kind = add.kind === "daily" ? "extra" : "daily"; add.kindTouched = true; paintAdd(); });
 bind("add-when", "click", function () {
@@ -2178,7 +2245,19 @@ bind("add-when", "click", function () {
   paintAdd();
 });
 bind("add-date", "change", function () { if (/^\d{4}-\d{2}-\d{2}$/.test(this.value)) { add.date = this.value; paintAdd(); } });
-bind("add-cat", "change", function () { add.catTouched = true; paintAdd(); });
+bind("add-cats", "click", function (e) {
+  var b = e.target.closest("[data-cat]"); if (!b) return;
+  var q = catOf(b.getAttribute("data-cat"));
+  add.cat = q.cat;
+  if (!add.kindTouched) add.kind = q.kind;
+  $("add-cat").value = q.cat;
+  paintAdd();
+});
+bind("add-more", "click", function () { add.showMore = true; paintAdd(); });
+bind("add-note", "click", function () {
+  $("add-name").hidden = false; $("add-note").hidden = true;
+  keysVisible(false); $("add-name").focus();
+});
 bind("add-src", "click", function (e) {
   if (e.target.closest("[data-new]")) { $("add").close(); openSource("income"); return; }
   var b = e.target.closest("[data-src]"); if (!b) return;
@@ -2204,15 +2283,13 @@ bind("add", "keydown", function (e) {
   else if (e.key === "Enter" && !$("add-save").disabled) { saveAdd(); e.preventDefault(); }
 });
 
-/* one tap logs a regular again */
-bind("again", "click", function (e) {
-  var b = e.target.closest("[data-again]"); if (!b) return;
-  var r = ui.reps && ui.reps[+b.getAttribute("data-again")]; if (!r) return;
-  var item = { id: uid(), date: ui.day || TODAY, person: ui.me, name: r.name,
-               amount: r.amount, cat: r.cat, kind: r.kind };
-  Store.add([item]);
-  toast("Added " + r.name + " · " + money(r.amount), function () { Store.remove(item.id); });
+/* home: tap a category, the sheet opens ready for the price */
+bind("quick", "click", function (e) {
+  var b = e.target.closest("[data-cat]"); if (!b) return;
+  openAdd("spend", b.getAttribute("data-cat"));
 });
+
+/* one tap logs a regular again */
 bind("mc-open", "click", function () { ui.month = mkey(TODAY); show("budget"); });
 bind("mc-nudge", "click", function () { openAdd("income"); });
 bind("b-prev", "click", function () { ui.month = shiftMonth(ui.month, -1); renderBudget(); });
