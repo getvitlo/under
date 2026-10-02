@@ -1,7 +1,7 @@
 /* Under — offline support.
    Always asks the network first so a new index.html shows up straight away;
    the cache is only a fallback for when there's no signal. */
-var CACHE = "under-v8";
+var CACHE = "under-v9";
 var CORE = ["./", "./index.html", "./config.js", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", function (e) {
