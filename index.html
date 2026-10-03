@@ -48,11 +48,14 @@
   color-scheme:dark;
 }
 
-@supports (height: 100dvh) { :root{ --app-h:100dvh } }
+/* svh = the viewport with the browser's toolbars showing. Sizing to that means
+   the tab bar is never hidden behind Safari's bottom bar; when that bar slides
+   away the strip it leaves is painted the same colour as the tab bar. */
+@supports (height: 100svh) { :root{ --app-h:100svh } }
 
 /* ---------- base: behaves like an app, not a page ---------- */
 *,*::before,*::after{box-sizing:border-box}
-html{height:100%;margin:0;background:var(--bg);overflow:hidden;overscroll-behavior:none;-webkit-text-size-adjust:100%}
+html{height:100%;margin:0;background:var(--surface);overflow:hidden;overscroll-behavior:none;-webkit-text-size-adjust:100%}
 body{position:fixed;top:0;left:0;right:0;bottom:0;height:var(--app-h);max-height:100%;margin:0;overflow:hidden;
   overscroll-behavior:none;background:var(--bg);color:var(--text);
   font:15px/1.45 var(--ui);letter-spacing:-.006em;-webkit-font-smoothing:antialiased;
@@ -320,6 +323,7 @@ input[type=range]{width:100%;accent-color:var(--brass);height:28px}
 
 /* ---------- tab bar with a centre add button ---------- */
 .tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;border-top:1px solid var(--line);
+  box-shadow:0 40px 0 0 var(--surface);
   background:var(--surface);background:color-mix(in srgb,var(--surface) 90%,transparent);
   -webkit-backdrop-filter:saturate(1.4) blur(18px);backdrop-filter:saturate(1.4) blur(18px);
   padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}
@@ -436,7 +440,7 @@ dialog[open]{animation:sheet .26s cubic-bezier(.2,.85,.25,1)}
   .w{margin-bottom:16px}
   .wgrid,.stats{margin-bottom:16px;gap:16px}
   .tabs .inner{max-width:560px}
-  dialog{margin:auto;border-radius:24px;max-width:460px;max-height:min(88%, 760px)}
+  dialog{margin:auto;border-radius:24px;max-width:460px;max-height:min(92%, 840px)}
   dialog[open]{animation:pop .18s ease}
   .grab{display:none}
   @keyframes pop{from{transform:scale(.97);opacity:.4}to{transform:none;opacity:1}}
@@ -490,24 +494,47 @@ dialog[open]{animation:sheet .26s cubic-bezier(.2,.85,.25,1)}
 .linkrow .linkbtn:active{color:var(--brass)}
 
 /* ---- add sheet: everything on one screen ---- */
-#add .amount{padding:14px 0 6px;min-height:0}
-#add .amount .i,#add .amount .d{font-size:clamp(38px, 11vh, 58px)}
-#add .amount .caret{height:clamp(32px, 9vh, 50px)}
+#add .sheet{padding-top:10px}
+#add .typeseg{margin-bottom:4px}
+#add .amount{padding:clamp(16px, 3.4vh, 30px) 0 clamp(14px, 2.6vh, 24px);min-height:0;
+  border-bottom:1px solid var(--line);margin-bottom:clamp(12px, 2vh, 18px)}
+#add .amount .i,#add .amount .d{font-size:clamp(38px, 10.5vh, 56px)}
+#add .amount .caret{height:clamp(30px, 8vh, 46px)}
+#add .amount .c{font-size:clamp(16px, 2.4vh, 20px)}
+#add #add-spend,#add #add-income,#add #add-bill{margin-bottom:clamp(6px, 1.4vh, 12px)}
+#add .opts{margin-top:clamp(4px, 1vh, 10px)}
 #add .catgrid button{padding:9px 4px 7px;gap:5px}
 #add .catgrid button .ci{width:clamp(26px, 4.2vh, 34px);height:clamp(26px, 4.2vh, 34px);border-radius:10px}
 #add .linkrow .linkbtn{padding:9px 0 2px}
 #add .opts{padding:4px 0 0;gap:6px}
 #add .opt{padding:6px 11px;font-size:13px}
 #add .explain{margin-top:6px;font-size:12px}
-#add .keys{gap:7px;margin-top:10px}
+#add .keys{gap:8px;margin-top:clamp(10px, 1.8vh, 16px)}
 #add .keys button{height:clamp(40px, 6.4vh, 54px);border-radius:14px;font-size:clamp(19px, 2.8vh, 24px)}
 #add .save{height:clamp(46px, 6.6vh, 56px);margin-top:10px;font-size:16px}
 #add .pick button{padding:9px 11px}
 #add .what.note{padding:6px 0 0;font-size:16px!important}
-@media (max-height: 700px){
-  #add .sheet{padding-top:4px}
+/* short screens: keep every part visible, just closer together */
+@media (max-height: 790px){
+  #add .sheet{padding-top:6px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))}
   #add .grab{margin-bottom:8px}
   #add .typeseg button{padding:6px 10px;font-size:13px}
+  #add .amount{padding:12px 0 10px;margin-bottom:10px}
+  #add .amount .i,#add .amount .d{font-size:clamp(32px, 8.4vh, 46px)}
+  #add .amount .caret{height:clamp(26px, 6.4vh, 38px)}
+  #add .catgrid button{padding:7px 4px 6px;gap:3px}
+  #add .catgrid button .ci{width:24px;height:24px;border-radius:9px}
+  #add .catgrid button .ci svg{width:13px;height:13px}
+  #add .catgrid button span.cl{font-size:10.5px}
+  #add .linkrow .linkbtn{padding:7px 0 2px;font-size:13px}
+  #add .opts{margin-top:4px;gap:5px}
+  #add .opt{padding:5px 10px;font-size:12.5px}
+  #add .explain{margin-top:4px;font-size:11.5px}
+  #add .keys{gap:6px;margin-top:8px}
+  #add .keys button{height:clamp(36px, 5.6vh, 46px);font-size:19px;border-radius:12px}
+  #add .save{height:46px;margin-top:8px;font-size:15.5px}
+  #add .pick button{padding:7px 10px}
+  #add .pick .pn{font-size:13.5px}
 }
 
 /* ---- Home: the day, large ---- */
@@ -557,8 +584,12 @@ dialog[open]{animation:sheet .26s cubic-bezier(.2,.85,.25,1)}
 
 /* ---- category tiles with what they have cost ---- */
 .catgrid button .cv{font-size:12.5px;font-weight:650;font-variant-numeric:tabular-nums;line-height:1}
+.catgrid button .cd{font-size:10.5px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+.catgrid button .cd.up{color:var(--rust)}
+.catgrid button .cd.down{color:var(--sea)}
+.catgrid button .cd.flat{color:var(--dim);font-weight:500}
 .catgrid button .cv.zero{color:var(--dim);font-weight:500}
-.catgrid.quick button{padding:10px 4px 9px;gap:5px}
+.catgrid.quick button{padding:10px 4px 9px;gap:4px}
 .catgrid.quick button span.cl{font-size:11px}
 
 /* Safari's "Request Desktop Website" reports a ~980px viewport on a phone.
@@ -567,6 +598,14 @@ dialog[open]{animation:sheet .26s cubic-bezier(.2,.85,.25,1)}
   .stack{display:block}
   .page{max-width:620px}
 }
+
+.row:active,.mini:active,.topbar:active{transform:scale(.995)}
+.w button:active{transform:scale(.98)}
+.catgrid button,.chips button,.row,.tab,.btn,.pick button{transition:transform .12s ease, background .12s ease}
+.tab:active{transform:scale(.94)}
+.money .i{transition:color .2s ease}
+.wm .up{color:var(--rust)}
+.wm .down{color:var(--sea)}
 
 </style>
 </head>
@@ -1332,7 +1371,7 @@ window.addEventListener("resize", fitHeight);
 window.addEventListener("orientationchange", function () { setTimeout(fitHeight, 300); });
 /* bind quietly skips anything missing, so one stray id can never take the whole app down */
 function bind(id, ev, fn) { var el = $(id); if (el) el.addEventListener(ev, fn); }
-var VERSION = "14";
+var VERSION = "15";
 /* The buttons you tap instead of typing. `kind` is what it counts as by default. */
 var QUICK = [
   { cat: "Coffee",      label: "Coffee",    kind: "daily" },
@@ -1611,23 +1650,39 @@ function renderToday() {
   $("mc-nudge").hidden = mf.inc > 0;
 
   /* every category with what it has cost this month — still tappable to add one */
-  var mkNow2 = mkey(ui.day), byCatMonth = {}, catTotal = 0;
+  var mkNow2 = mkey(ui.day), dayNo = +ui.day.slice(8);
+  var prevMk = shiftMonth(mkNow2, -1);
+  var byCatMonth = {}, byCatPrev = {}, catTotal = 0, prevTotal = 0;
   all().forEach(function (x) {
-    if (mkey(x.date) !== mkNow2) return;
     if (x.person !== ui.me && x.logged_by !== ui.me) return;
-    byCatMonth[x.cat] = (byCatMonth[x.cat] || 0) + x.amount;
-    catTotal += x.amount;
+    var m = mkey(x.date), d = +x.date.slice(8);
+    if (m === mkNow2) { byCatMonth[x.cat] = (byCatMonth[x.cat] || 0) + x.amount; catTotal += x.amount; }
+    /* same stretch of last month, so a comparison mid-month is fair */
+    else if (m === prevMk && d <= dayNo) { byCatPrev[x.cat] = (byCatPrev[x.cat] || 0) + x.amount; prevTotal += x.amount; }
   });
+  function deltaTag(now, before) {
+    if (!before) return now ? '<span class="cd flat">new</span>' : "";
+    if (!now) return '<span class="cd down">−100%</span>';
+    var p = Math.round((now - before) / before * 100);
+    if (p === 0) return '<span class="cd flat">same</span>';
+    return '<span class="cd ' + (p > 0 ? "up" : "down") + '">' + (p > 0 ? "+" : "−") + Math.abs(p) + "%</span>";
+  }
   var tiles = QUICK.slice();
-  MORE_CATS.forEach(function (m) { if (byCatMonth[m.cat]) tiles.push(m); });
-  $("quick-meta").textContent = catTotal ? monthLabel(mkNow2).split(" ")[0] + " · " + fmt(catTotal) : "this month";
+  MORE_CATS.forEach(function (m) { if (byCatMonth[m.cat] || byCatPrev[m.cat]) tiles.push(m); });
+  $("quick-meta").innerHTML = catTotal
+    ? monthLabel(mkNow2).split(" ")[0] + " · " + fmt(catTotal) +
+      (prevTotal ? '  <span class="' + (catTotal > prevTotal ? "up" : "down") + '" style="font-weight:600">' +
+        (catTotal > prevTotal ? "+" : "−") + Math.abs(Math.round((catTotal - prevTotal) / prevTotal * 100)) +
+        "%</span> vs last month" : "")
+    : "this month";
   $("quick").innerHTML = tiles.map(function (q) {
     var v = byCatMonth[q.cat] || 0;
     return '<button type="button" data-cat="' + esc(q.cat) + '">' +
       '<span class="ci" style="background:' + (COLOR[q.cat] || COLOR.Other) + '"><svg viewBox="0 0 24 24"><path d="' +
       (ICONS[q.cat] || ICONS.Other) + '"/></svg></span>' +
       '<span class="cl">' + esc(q.label) + "</span>" +
-      '<span class="cv' + (v ? "" : " zero") + '">' + (v ? fmt(v) : "—") + "</span></button>";
+      '<span class="cv' + (v ? "" : " zero") + '">' + (v ? fmt(v) : "—") + "</span>" +
+      deltaTag(v, byCatPrev[q.cat] || 0) + "</button>";
   }).join("");
 
   /* ten days, yours, against your cap */
