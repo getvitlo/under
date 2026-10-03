@@ -2,7 +2,7 @@
    Network first, so a new version shows up as soon as it's published.
    The cache is only a fallback for when there's no signal.
    Nothing here is allowed to fail in a way that wedges an old version in place. */
-var CACHE = "under-v14";
+var CACHE = "under-v15";
 var CORE = ["./", "./index.html", "./config.js", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", function (e) {
